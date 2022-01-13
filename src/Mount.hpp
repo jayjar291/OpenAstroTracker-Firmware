@@ -7,7 +7,6 @@
 
 // Forward declarations
 class AccelStepper;
-class LcdMenu;
 class TMC2209Stepper;
 
 #define NORTH          B00000001
@@ -17,11 +16,9 @@ class TMC2209Stepper;
 #define ALL_DIRECTIONS B00001111
 #define TRACKING       B00010000
 #define FOCUSING       B00100000
-
 #define LCDMENU_STRING     B0001
 #define MEADE_STRING       B0010
 #define PRINT_STRING       B0011
-#define LCD_STRING         B0100
 #define COMPACT_STRING     B0101
 #define FORMAT_STRING_MASK B0111
 
@@ -101,7 +98,7 @@ enum FocuserDirection
 class Mount
 {
   public:
-    Mount(LcdMenu *lcdMenu);
+    Mount();
 
     void initializeVariables();
 
@@ -464,7 +461,6 @@ class Mount
     void autoCalcHa();
 
   private:
-    LcdMenu *_lcdMenu;
     float _stepsPerRADegree;   // u-steps/degree when slewing (see RA_STEPS_PER_DEGREE)
     float _stepsPerDECDegree;  // u-steps/degree when slewing (see DEC_STEPS_PER_DEGREE)
     int _maxRASpeed;

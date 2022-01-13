@@ -6,10 +6,9 @@
 
 #if (WIFI_ENABLED == 1)
 
-WifiControl::WifiControl(Mount *mount, LcdMenu *lcdMenu)
+WifiControl::WifiControl(Mount *mount)
 {
     _mount   = mount;
-    _lcdMenu = lcdMenu;
 }
 
 void WifiControl::setup()

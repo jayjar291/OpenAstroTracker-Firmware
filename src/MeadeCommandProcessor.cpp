@@ -1,7 +1,6 @@
 #include "inc/Globals.hpp"
 #include "../Configuration.hpp"
 #include "Utility.hpp"
-#include "LcdMenu.hpp"
 #include "Mount.hpp"
 #include "MeadeCommandProcessor.hpp"
 #include "WifiControl.hpp"
@@ -1015,9 +1014,9 @@ MeadeCommandProcessor *MeadeCommandProcessor::_instance = nullptr;
 /////////////////////////////
 // Create the processor
 /////////////////////////////
-MeadeCommandProcessor *MeadeCommandProcessor::createProcessor(Mount *mount, LcdMenu *lcdMenu)
+MeadeCommandProcessor *MeadeCommandProcessor::createProcessor(Mount *mount)
 {
-    _instance = new MeadeCommandProcessor(mount, lcdMenu);
+    _instance = new MeadeCommandProcessor(mount);
     return _instance;
 }
 
@@ -1032,12 +1031,9 @@ MeadeCommandProcessor *MeadeCommandProcessor::instance()
 /////////////////////////////
 // Constructor
 /////////////////////////////
-MeadeCommandProcessor::MeadeCommandProcessor(Mount *mount, LcdMenu *lcdMenu)
+MeadeCommandProcessor::MeadeCommandProcessor(Mount *mount)
 {
     _mount = mount;
-
-    // In case of DISPLAY_TYPE_NONE mode, the lcdMenu is just an empty shell class to save having to null check everywhere
-    _lcdMenu = lcdMenu;
 }
 
 /////////////////////////////
@@ -1046,10 +1042,6 @@ MeadeCommandProcessor::MeadeCommandProcessor(Mount *mount, LcdMenu *lcdMenu)
 String MeadeCommandProcessor::handleMeadeInit(String inCmd)
 {
     inSerialControl = true;
-    _lcdMenu->setCursor(0, 0);
-    _lcdMenu->printMenu("Remote control");
-    _lcdMenu->setCursor(0, 1);
-    _lcdMenu->printMenu(">SELECT to quit");
     return "";
 }
 
@@ -1534,27 +1526,15 @@ String MeadeCommandProcessor::handleMeadeExtraCommands(String inCmd)
     if (inCmd[0] == 'D')  // :XD
     {                     // Drift Alignemnt
         int duration = inCmd.substring(1, 4).toInt() - 3;
-        _lcdMenu->setCursor(0, 0);
-        _lcdMenu->printMenu(">Drift Alignment");
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu("Pause 1.5s....");
+
         _mount->stopSlewing(ALL_DIRECTIONS | TRACKING);
         _mount->waitUntilStopped(ALL_DIRECTIONS);
         _mount->delay(1500);
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu("Eastward pass...");
         _mount->runDriftAlignmentPhase(EAST, duration);
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu("Pause 1.5s....");
         _mount->delay(1500);
-        _lcdMenu->printMenu("Westward pass...");
         _mount->runDriftAlignmentPhase(WEST, duration);
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu("Pause 1.5s....");
         _mount->delay(1500);
-        _lcdMenu->printMenu("Reset _mount->..");
         _mount->runDriftAlignmentPhase(0, duration);
-        _lcdMenu->setCursor(0, 1);
         _mount->startSlewing(TRACKING);
     }
     else if (inCmd[0] == 'G')
@@ -1811,8 +1791,6 @@ String MeadeCommandProcessor::handleMeadeQuit(String inCmd)
             break;
         case 'q':
             inSerialControl = false;
-            _lcdMenu->setCursor(0, 0);
-            _lcdMenu->updateDisplay();
             break;
     }
 

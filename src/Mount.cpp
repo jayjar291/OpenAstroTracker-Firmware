@@ -1,7 +1,6 @@
 #include "../Configuration.hpp"
 #include "Utility.hpp"
 #include "EPROMStore.hpp"
-#include "LcdMenu.hpp"
 #include "Mount.hpp"
 #include "Sidereal.hpp"
 
@@ -75,7 +74,7 @@ const float siderealDegreesInHour = 14.95904348958;
 // CTOR
 //
 /////////////////////////////////
-Mount::Mount(LcdMenu *lcdMenu)
+Mount::Mount()
 #if (AZ_STEPPER_TYPE != STEPPER_TYPE_NONE) || (ALT_STEPPER_TYPE != STEPPER_TYPE_NONE)
     : _azAltWasRunning(false)
 #endif
@@ -89,7 +88,6 @@ Mount::Mount(LcdMenu *lcdMenu)
 #endif
 
 {
-    _lcdMenu = lcdMenu;
     initializeVariables();
 }
 
@@ -3360,74 +3358,7 @@ void Mount::moveStepperBy(StepperAxis direction, long steps)
 /////////////////////////////////
 void Mount::displayStepperPosition()
 {
-#if DISPLAY_TYPE > 0
 
-    String disp;
-
-    if ((fabsf(_totalDECMove) > 0.001f) && (fabsf(_totalRAMove) > 0.001f))
-    {
-        // Both axes moving to target
-        float decDist = 100.0f - 100.0f * _stepperDEC->distanceToGo() / _totalDECMove;
-        float raDist  = 100.0f - 100.0f * _stepperRA->distanceToGo() / _totalRAMove;
-
-        sprintf(scratchBuffer, "R %s %d%%", RAString(LCD_STRING | CURRENT_STRING).c_str(), (int) raDist);
-        _lcdMenu->setCursor(0, 0);
-        _lcdMenu->printMenu(String(scratchBuffer));
-        sprintf(scratchBuffer, "D%s %d%%", DECString(LCD_STRING | CURRENT_STRING).c_str(), (int) decDist);
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu(String(scratchBuffer));
-        return;
-    }
-
-    if (fabsf(_totalDECMove) > 0.001f)
-    {
-        // Only DEC moving to target
-        float decDist = 100.0f - 100.0f * _stepperDEC->distanceToGo() / _totalDECMove;
-        sprintf(scratchBuffer, "D%s %d%%", DECString(LCD_STRING | CURRENT_STRING).c_str(), (int) decDist);
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu(String(scratchBuffer));
-    }
-    else if (fabsf(_totalRAMove) > 0.001f)
-    {
-        // Only RAmoving to target
-        float raDist = 100.0f - 100.0f * _stepperRA->distanceToGo() / _totalRAMove;
-        sprintf(scratchBuffer, "R %s %d%%", RAString(LCD_STRING | CURRENT_STRING).c_str(), (int) raDist);
-        disp = disp + String(scratchBuffer);
-        _lcdMenu->setCursor(0, inSerialControl ? 0 : 1);
-        _lcdMenu->printMenu(String(scratchBuffer));
-    }
-    else
-    {
-        // Nothing moving
-    #if SUPPORT_SERIAL_CONTROL == 1
-        if (inSerialControl)
-        {
-            sprintf(scratchBuffer, " RA: %s", RAString(LCD_STRING | CURRENT_STRING).c_str());
-            _lcdMenu->setCursor(0, 0);
-            _lcdMenu->printMenu(scratchBuffer);
-            sprintf(scratchBuffer, "DEC: %s", DECString(LCD_STRING | CURRENT_STRING).c_str());
-            _lcdMenu->setCursor(0, 1);
-            _lcdMenu->printMenu(scratchBuffer);
-        }
-        else
-        {
-            sprintf(scratchBuffer,
-                    "R%s D%s",
-                    RAString(COMPACT_STRING | CURRENT_STRING).c_str(),
-                    DECString(COMPACT_STRING | CURRENT_STRING).c_str());
-            _lcdMenu->setCursor(0, 1);
-            _lcdMenu->printMenu(scratchBuffer);
-        }
-    #else
-        sprintf(scratchBuffer,
-                "R%s D%s",
-                RAString(COMPACT_STRING | CURRENT_STRING).c_str(),
-                DECString(COMPACT_STRING | CURRENT_STRING).c_str());
-        _lcdMenu->setCursor(0, 1);
-        _lcdMenu->printMenu(scratchBuffer);
-    #endif
-    }
-#endif
 }
 
 /////////////////////////////////

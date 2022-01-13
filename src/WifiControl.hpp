@@ -12,13 +12,12 @@
 
 // Forward declarations
 class Mount;
-class LcdMenu;
 class MeadeCommandProcessor;
 
 class WifiControl
 {
   public:
-    WifiControl(Mount *mount, LcdMenu *lcdMenu);
+    WifiControl(Mount *mount);
     void setup();
     void loop();
     String getStatus();
@@ -31,7 +30,6 @@ class WifiControl
     void udpLoop();
     wl_status_t _status;
     Mount *_mount;
-    LcdMenu *_lcdMenu;
     MeadeCommandProcessor *_cmdProcessor;
 
     WiFiServer *_tcpServer;

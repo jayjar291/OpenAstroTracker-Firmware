@@ -17,28 +17,17 @@ POP_NO_WARNINGS
 #include "Utility.hpp"
 #include "EPROMStore.hpp"
 #include "a_inits.hpp"
-#include "LcdMenu.hpp"
-#include "LcdButtons.hpp"
 
-LcdMenu lcdMenu(16, 2, MAXMENUITEMS);
-#if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD
-LcdButtons lcdButtons(LCD_KEY_SENSE_PIN, &lcdMenu);
-#endif
-
-#if DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23017 || DISPLAY_TYPE == DISPLAY_TYPE_LCD_KEYPAD_I2C_MCP23008                           \
-    || DISPLAY_TYPE == DISPLAY_TYPE_LCD_JOY_I2C_SSD1306
-LcdButtons lcdButtons(&lcdMenu);
-#endif
 
 #ifdef ESP32
-DRAM_ATTR Mount mount(&lcdMenu);
+DRAM_ATTR Mount mount();
 #else
-Mount mount(&lcdMenu);
+Mount mount;
 #endif
 
 #if (WIFI_ENABLED == 1)
     #include "WifiControl.hpp"
-WifiControl wifiControl(&mount, &lcdMenu);
+WifiControl wifiControl(&mount);
 #endif
 
 /////////////////////////////////
@@ -239,72 +228,11 @@ void setup()
 
     EEPROMStore::initialize();
 
-// Calling the LCD startup here, I2C can't be found if called earlier
-#if DISPLAY_TYPE != DISPLAY_TYPE_NONE
-    lcdMenu.startup();
-
-    LOGV1(DEBUG_ANY, F("Finishing boot..."));
-    // Show a splash screen
-    lcdMenu.setCursor(0, 0);
-    #ifdef OAM
-    lcdMenu.printMenu(" OpenAstroMount");
-    #else
-    lcdMenu.printMenu("OpenAstroTracker");
-    #endif
-    lcdMenu.setCursor(5, 1);
-    lcdMenu.printMenu(VERSION);
-    delay(1000);  // Pause on splash screen
-
-    // Check for EEPROM reset (Button down during boot)
-    if (lcdButtons.currentState() == btnDOWN)
-    {
-        LOGV1(DEBUG_INFO, F("Erasing configuration in EEPROM!"));
-        mount.clearConfiguration();
-        // Wait for button release
-        lcdMenu.setCursor(13, 1);
-        lcdMenu.printMenu("CLR");
-        LOGV1(DEBUG_INFO, F("Waiting for button release!"));
-        while (lcdButtons.currentState() != btnNONE)
-        {
-            delay(10);
-        }
-    }
-
-    // Create the LCD top-level menu items
-    lcdMenu.addItem("RA", RA_Menu);
-    lcdMenu.addItem("DEC", DEC_Menu);
-
-    #if SUPPORT_POINTS_OF_INTEREST == 1
-    lcdMenu.addItem("GO", POI_Menu);
-    #else
-    lcdMenu.addItem("GO", Home_Menu);
-    #endif
-
-    lcdMenu.addItem("HA", HA_Menu);
-
-    #if SUPPORT_MANUAL_CONTROL == 1
-    lcdMenu.addItem("CTRL", Control_Menu);
-    #endif
-
-    #if SUPPORT_CALIBRATION == 1
-    lcdMenu.addItem("CAL", Calibration_Menu);
-    #endif
-
-    #if FOCUS_STEPPER_TYPE != STEPPER_TYPE_NONE
-    lcdMenu.addItem("FOC", Focuser_Menu);
-    #endif
-
-    #if SUPPORT_INFO_DISPLAY == 1
-    lcdMenu.addItem("INFO", Status_Menu);
-    #endif
-
-#endif  // DISPLAY_TYPE > 0
-
     LOGV2(DEBUG_ANY, F("Hardware: %s"), mount.getMountHardwareInfo().c_str());
 
     // Create the command processor singleton
     LOGV1(DEBUG_ANY, F("Initialize LX200 handler..."));
-    MeadeCommandProcessor::createProcessor(&mount, &lcdMenu);
+    MeadeCommandProcessor::createProcessor(&mount);
 
 #if (WIFI_ENABLED == 1)
     LOGV1(DEBUG_ANY, F("Setup Wifi..."));

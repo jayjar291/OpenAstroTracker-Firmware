@@ -2,17 +2,16 @@
 
 // Forward declarations
 class Mount;
-class LcdMenu;
 
 class MeadeCommandProcessor
 {
   public:
-    static MeadeCommandProcessor *createProcessor(Mount *mount, LcdMenu *lcdMenu);
+    static MeadeCommandProcessor *createProcessor(Mount *mount);
     static MeadeCommandProcessor *instance();
     String processCommand(String incmd);
 
   private:
-    MeadeCommandProcessor(Mount *mount, LcdMenu *lcdMenu);
+    MeadeCommandProcessor(Mount *mount);
     String handleMeadeSetInfo(String inCmd);
     String handleMeadeMovement(String inCmd);
     String handleMeadeGetInfo(String inCmd);
@@ -26,6 +25,5 @@ class MeadeCommandProcessor
     String handleMeadeExtraCommands(String inCmd);
     String handleMeadeFocusCommands(String inCmd);
     Mount *_mount;
-    LcdMenu *_lcdMenu;
     static MeadeCommandProcessor *_instance;
 };
