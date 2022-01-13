@@ -264,6 +264,7 @@
     #endif
 #elif (DISPLAY_TYPE == DISPLAY_TYPE_LCD_JOY_I2C_SSD1306)
 // No dedicated pins required apart from I2C for display
+#elif (DISPLAY_TYPE == DISPLAY_TYPE_MINI12864)
 #endif
 
 // Keypad

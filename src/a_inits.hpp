@@ -11,6 +11,8 @@ POP_NO_WARNINGS
 #include "Mount.hpp"
 #include "MeadeCommandProcessor.hpp"
 
+#include "DisplayDriver.hpp"
+
 // TODO: we have to change driver type to DRIVER_TYPE_TMC2209 and add a new definition for the actual mode (e.g. DRIVER_MODE_UART)
 #if (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (RA_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)                                     \
     || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_STANDALONE) || (DEC_DRIVER_TYPE == DRIVER_TYPE_TMC2209_UART)                                \

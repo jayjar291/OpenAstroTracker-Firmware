@@ -11,4 +11,5 @@ void loop()
     #ifdef ESP32
     serialLoop();
     #endif
+    Display_Driver.loop();
 }

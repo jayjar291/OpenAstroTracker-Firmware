@@ -23,6 +23,14 @@ POP_NO_WARNINGS
 DRAM_ATTR Mount mount();
 #else
 Mount mount;
+
+//create display driver
+
+#if DISPLAY_TYPE > DISPLAY_TYPE_NONE
+    DisplayDriver Display_Driver;
+#endif
+
+
 #endif
 
 #if (WIFI_ENABLED == 1)
@@ -363,7 +371,7 @@ void setup()
     LOGV1(DEBUG_STEPPERS, "Finished moving DEC axis using UART commands.");
     #endif
 #endif
-
+    Display_Driver.Begin();
     // Start the tracker.
     LOGV1(DEBUG_ANY, F("Start Tracking..."));
     mount.startSlewing(TRACKING);
