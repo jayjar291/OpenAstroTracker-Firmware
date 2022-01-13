@@ -5,7 +5,7 @@
 PUSH_NO_WARNINGS
 #include <AccelStepper.h>
 POP_NO_WARNINGS
-
+#include "../Version.h"
 #include "Utility.hpp"
 #include "DayTime.hpp"
 #include "Mount.hpp"

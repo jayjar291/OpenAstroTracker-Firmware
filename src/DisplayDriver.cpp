@@ -1,5 +1,7 @@
 #include "DisplayDriver.hpp"
-
+#include "Utility.hpp"
+#include "../Version.h"
+#include "Mount.hpp"
 
 #if DISPLAY_TYPE == DISPLAY_TYPE_MINI12864
     #include "Adafruit_NeoPixel.h"
@@ -21,7 +23,7 @@
     #define offsetY 0
     #define U8_Width 128
     #define U8_Height 64
-    U8G2_UC1701_MINI12864_1_4W_HW_SPI u8g2(U8G2_R0, U8_CS, U8_DC , U8_RST);
+    U8G2_UC1701_MINI12864_F_4W_HW_SPI u8g2(U8G2_R0, U8_CS, U8_DC , U8_RST);
     #ifdef OAM
         #define device "Open Astro Mount"
     #else 
@@ -30,10 +32,48 @@
 #else
 
 #endif
-
-DisplayDriver::DisplayDriver() 
+Mount *_mount; 
+int counter = 0;
+DisplayDriver::DisplayDriver(Mount *mount) 
 {
+    _mount = mount;
+}
 
+void StatusInfo() {
+  u8g2.drawFrame(0,0,128,64);
+    u8g2.drawStr(25,10,device);
+    u8g2.drawHLine(1,14,128);
+    u8g2.drawStr(2,23," RA:");
+    u8g2.drawStr(2,31,"DEC:");
+    u8g2.drawStr(30,23,_mount->RAString(PRINT_STRING | CURRENT_STRING).c_str()); //RA
+    u8g2.drawStr(30,31,_mount->DECString(PRINT_STRING | CURRENT_STRING).c_str()); //DEC
+    u8g2.drawHLine(1,33,128);
+    u8g2.drawStr(2,42," LAT:");
+    u8g2.drawStr(2,50,"LONG:");
+    u8g2.drawStr(30,42,"24");
+    u8g2.drawStr(30,50,"24");
+    u8g2.drawStr(40,42,"H");
+    u8g2.drawStr(40,50,"°");
+    u8g2.drawStr(45,42,"24");
+    u8g2.drawStr(45,50,"24");
+    u8g2.drawStr(55,42,"M");
+    u8g2.drawStr(55,50,"'");
+    u8g2.drawStr(60,42,"24");
+    u8g2.drawStr(60,50,"24");
+    u8g2.drawStr(70,42,"S");
+    u8g2.drawStr(70,50,"\"");
+    u8g2.drawStr(25,50,"-");
+    u8g2.drawHLine(1,53,128);
+    u8g2.drawStr(2,62,"Free Mem:");
+    u8g2.drawStr(50,62,String(freeMemory()).c_str());
+    if (_mount->isSlewingTRK())
+    {
+        u8g2.drawStr(95,27,"TRK");
+    }
+    #if USE_GPS > 0
+    u8g2.drawStr(95,46,"GPS");
+    #endif
+    u8g2.drawStr(90,62,String(VERSION).c_str());
 }
 
 //startup function
@@ -43,16 +83,26 @@ void DisplayDriver::Begin()
     pixels.begin();
     u8g2.begin();
     u8g2.setContrast(255);
+    u8g2.setFont(fontName);
 }
 
 //loop function
 
 void DisplayDriver::loop()
 {
-    u8g2.clearBuffer();					// clear the internal memory
-    u8g2.setFont(u8g2_font_ncenB08_tr);	// choose a suitable font
-    u8g2.drawStr(0,10,"Hello World!");	// write something to the internal memory
-    u8g2.sendBuffer();					// transfer internal memory to the display
+    if (counter == 0)
+    {
+        u8g2.clearBuffer();	
+        StatusInfo();	// write something to the internal memory
+        u8g2.sendBuffer();
+        counter++;
+    } else {
+        counter++;
+        if (counter > 1000)
+        {
+            counter = 0;
+        }
+    }
     pixels.clear();
     pixels.setPixelColor(0, pixels.Color(red, green, blue)); // encoder
     pixels.setPixelColor(1, pixels.Color(red, green, blue));

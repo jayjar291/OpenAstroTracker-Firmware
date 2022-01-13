@@ -27,7 +27,7 @@ Mount mount;
 //create display driver
 
 #if DISPLAY_TYPE > DISPLAY_TYPE_NONE
-    DisplayDriver Display_Driver;
+    DisplayDriver Display_Driver(&mount);
 #endif
 
 
